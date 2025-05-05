@@ -2,113 +2,96 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>テトロミノ時計</title>
+  <title>separate a day</title>
   <style>
-    body {
-      background-color: #111;
-      color: white;
-      font-family: sans-serif;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    #clock {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0; /* テトロミノ同士の間隔なし */
-      justify-content: center;
-    }
-
-    .tetromino {
-      display: grid;
-      grid-template-columns: repeat(4, 20px);
-      grid-template-rows: repeat(4, 20px);
-      position: relative;
-    }
-
-    .block {
-      width: 20px;
-      height: 20px;
-      border: 1px solid #0a0;
+    * {
       box-sizing: border-box;
     }
 
-    /* テトロミノ形状と色分け */
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background 0.3s, color 0.3s;
+    }
 
-    .type-0 .b0 { grid-column: 1; grid-row: 1; }
-    .type-0 .b1 { grid-column: 1; grid-row: 2; }
-    .type-0 .b2 { grid-column: 1; grid-row: 3; }
-    .type-0 .b3 { grid-column: 1; grid-row: 4; }
-    .type-0 { background-color: #f00; } /* 赤 */
+    .dark {
+      background: #222;
+      color: #0f0;
+    }
 
-    .type-1 .b0 { grid-column: 1; grid-row: 1; }
-    .type-1 .b1 { grid-column: 2; grid-row: 1; }
-    .type-1 .b2 { grid-column: 1; grid-row: 2; }
-    .type-1 .b3 { grid-column: 2; grid-row: 2; }
-    .type-1 { background-color: #00f; } /* 青 */
+    .light {
+      background: #fefefe;
+      color: #222;
+    }
 
-    .type-2 .b0 { grid-column: 1; grid-row: 1; }
-    .type-2 .b1 { grid-column: 1; grid-row: 2; }
-    .type-2 .b2 { grid-column: 2; grid-row: 2; }
-    .type-2 .b3 { grid-column: 3; grid-row: 2; }
-    .type-2 { background-color: #ff0; } /* 黄色 */
+    #fractionTime {
+      font-size: 200px;
+    }
 
-    .type-3 .b0 { grid-column: 1; grid-row: 1; }
-    .type-3 .b1 { grid-column: 1; grid-row: 2; }
-    .type-3 .b2 { grid-column: 1; grid-row: 3; }
-    .type-3 .b3 { grid-column: 2; grid-row: 3; }
-    .type-3 { background-color: #0f0; } /* 緑 */
+    #themeToggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      transition: background 0.2s, color 0.2s;
+    }
 
-    .type-4 .b0 { grid-column: 1; grid-row: 1; }
-    .type-4 .b1 { grid-column: 1; grid-row: 2; }
-    .type-4 .b2 { grid-column: 2; grid-row: 2; }
-    .type-4 .b3 { grid-column: 3; grid-row: 2; }
-    .type-4 { background-color: #f90; } /* オレンジ */
+    .dark #themeToggle {
+      background-color: #fff;
+      color: #000;
+    }
+
+    .light #themeToggle {
+      background-color: #ddd;
+      color: #000;
+    }
+
+    #themeToggle:hover {
+      opacity: 0.8;
+    }
   </style>
 </head>
-<body>
-  <div id="clock"></div>
+<body class="dark">
+  <div id="fractionTime">--.--</div>
+  <button id="themeToggle">ライトテーマに切り替え</button>
 
   <script>
-    const clock = document.getElementById("clock");
-
-    function createTetromino(type) {
-      const container = document.createElement("div");
-      container.className = `tetromino type-${type}`;
-
-      for (let i = 0; i < 4; i++) {
-        const block = document.createElement("div");
-        block.className = `block b${i}`;
-        container.appendChild(block);
-      }
-
-      return container;
-    }
-
-    function updateClock() {
+    function updateTime() {
       const now = new Date();
-      const totalSeconds = now.getHours() * 3600 +
-                           now.getMinutes() * 60 +
-                           now.getSeconds() +
-                           now.getMilliseconds() / 1000;
-      const index = Math.floor(totalSeconds / 86400 * 78125);
-      const base5 = index.toString(5).padStart(7, "0");
+      const secondsSinceMidnight =
+        now.getHours() * 3600 +
+        now.getMinutes() * 60 +
+        now.getSeconds() +
+        now.getMilliseconds() / 1000;
 
-      clock.innerHTML = "";
+      const fraction = secondsSinceMidnight / 86.4;
+      const display = fraction.toFixed(2);
 
-      for (let i = 0; i < base5.length; i++) {
-        const digit = parseInt(base5[i]);
-        const tetromino = createTetromino(digit);
-        clock.appendChild(tetromino);
-      }
+      document.getElementById("fractionTime").textContent = display;
     }
 
-    setInterval(updateClock, 100);
-    updateClock();
+    setInterval(updateTime, 100);
+    updateTime();
+
+    const body = document.body;
+    const toggleButton = document.getElementById("themeToggle");
+
+    toggleButton.addEventListener("click", () => {
+      const isDark = body.classList.contains("dark");
+      body.classList.toggle("dark", !isDark);
+      body.classList.toggle("light", isDark);
+      toggleButton.textContent = isDark
+        ? "ダークテーマに切り替え"
+        : "ライトテーマに切り替え";
+    });
   </script>
 </body>
 </html>
