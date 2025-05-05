@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>separate a day</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #222;
+      color: #0f0;
+      font-size: 3em;
+    }
+  </style>
+</head>
+<body>
+  <div id="fractionTime">--.--</div>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      const secondsSinceMidnight = 
+          now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds() + now.getMilliseconds() / 1000;
+
+      const fraction = secondsSinceMidnight / 86.4;
+      const display = fraction.toFixed(2);
+
+      document.getElementById('fractionTime').textContent = display;
+    }
+
+    setInterval(updateTime, 100);
+    updateTime(); // 初期表示
+  </script>
+</body>
+</html>
