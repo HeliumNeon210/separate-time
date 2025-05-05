@@ -2,12 +2,9 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>separate a day</title>
+  <title>1000分割時計＋歯車</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       font-family: sans-serif;
       margin: 0;
@@ -29,7 +26,8 @@
     }
 
     #fractionTime {
-      font-size: 200px;
+      font-size: 4em;
+      z-index: 1;
     }
 
     #themeToggle {
@@ -57,13 +55,62 @@
     #themeToggle:hover {
       opacity: 0.8;
     }
+
+    #gearsContainer {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .gear {
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      border-radius: 50%;
+      border: 4px solid currentColor;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .gear::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 70%;
+      height: 70%;
+      background: currentColor;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .rotate {
+      animation: spin 1s linear forwards;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body class="dark">
   <div id="fractionTime">--.--</div>
   <button id="themeToggle">ライトテーマに切り替え</button>
 
+  <div id="gearsContainer">
+    <div class="gear" id="gear0"></div>
+    <div class="gear" id="gear1"></div>
+    <div class="gear" id="gear2"></div>
+    <div class="gear" id="gear3"></div>
+    <div class="gear" id="gear4"></div>
+  </div>
+
   <script>
+    let previousDigits = ["-", "-", "-", "-", "-"];
+
     function updateTime() {
       const now = new Date();
       const secondsSinceMidnight =
@@ -73,9 +120,21 @@
         now.getMilliseconds() / 1000;
 
       const fraction = secondsSinceMidnight / 86.4;
-      const display = fraction.toFixed(2);
-
+      const display = fraction.toFixed(2).padStart(6, "0");
       document.getElementById("fractionTime").textContent = display;
+
+      // 回転処理
+      const digits = display.replace(".", "").split("");
+      digits.forEach((digit, index) => {
+        if (digit !== previousDigits[index]) {
+          const gear = document.getElementById("gear" + index);
+          gear.classList.remove("rotate");
+          // 強制再描画
+          void gear.offsetWidth;
+          gear.classList.add("rotate");
+          previousDigits[index] = digit;
+        }
+      });
     }
 
     setInterval(updateTime, 100);
