@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>separate a day</title>
+  <title>16-bit Day Clock</title>
   <style>
     * {
       box-sizing: border-box;
@@ -11,60 +11,55 @@
     body {
       font-family: sans-serif;
       margin: 0;
+      background: #222;
+      color: #0f0;
       height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      transition: background 0.3s, color 0.3s;
     }
 
-    .dark {
-      background: #222;
-      color: #0f0;
+    #tileClock {
+      display: grid;
+      grid-template-columns: repeat(4, 80px);
+      grid-template-rows: repeat(4, 80px);
+      gap: 8px;
     }
 
-    .light {
-      background: #fefefe;
-      color: #222;
+    .tile {
+      width: 80px;
+      height: 80px;
+      border: 1px solid #444;
+      transition: background 0.3s;
     }
 
-    #fractionTime {
-      font-size: 200px;
+    .tile.on {
+      background-color: #0f0;
     }
 
-    #themeToggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      padding: 0.5em 1em;
-      font-size: 1em;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .dark #themeToggle {
-      background-color: #fff;
-      color: #000;
-    }
-
-    .light #themeToggle {
-      background-color: #ddd;
-      color: #000;
-    }
-
-    #themeToggle:hover {
-      opacity: 0.8;
+    .tile.off {
+      background-color: #333;
     }
   </style>
 </head>
-<body class="dark">
-  <div id="fractionTime">--.--</div>
-  <button id="themeToggle">ライトテーマに切り替え</button>
+<body>
+  <div id="tileClock">
+    <!-- 16 tiles will be inserted here -->
+  </div>
 
   <script>
-    function updateTime() {
+    const tileClock = document.getElementById("tileClock");
+
+    // 初期化：16個のタイル
+    for (let i = 0; i < 16; i++) {
+      const tile = document.createElement("div");
+      tile.classList.add("tile", "off");
+      tileClock.appendChild(tile);
+    }
+
+    const tiles = Array.from(tileClock.children);
+
+    function updateClock() {
       const now = new Date();
       const secondsSinceMidnight =
         now.getHours() * 3600 +
@@ -72,26 +67,17 @@
         now.getSeconds() +
         now.getMilliseconds() / 1000;
 
-      const fraction = secondsSinceMidnight / 86.4;
-      const display = fraction.toFixed(2);
+      const fractionIndex = Math.floor((secondsSinceMidnight / 86400) * 65536);
+      const binary = fractionIndex.toString(2).padStart(16, "0");
 
-      document.getElementById("fractionTime").textContent = display;
+      tiles.forEach((tile, i) => {
+        tile.classList.toggle("on", binary[i] === "1");
+        tile.classList.toggle("off", binary[i] === "0");
+      });
     }
 
-    setInterval(updateTime, 100);
-    updateTime();
-
-    const body = document.body;
-    const toggleButton = document.getElementById("themeToggle");
-
-    toggleButton.addEventListener("click", () => {
-      const isDark = body.classList.contains("dark");
-      body.classList.toggle("dark", !isDark);
-      body.classList.toggle("light", isDark);
-      toggleButton.textContent = isDark
-        ? "ダークテーマに切り替え"
-        : "ライトテーマに切り替え";
-    });
+    setInterval(updateClock, 100);
+    updateClock();
   </script>
 </body>
 </html>
