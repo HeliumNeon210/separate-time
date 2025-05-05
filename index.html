@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>1000分割時計＋歯車</title>
+  <title>1000分割時計＋歯付き歯車</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -65,29 +65,47 @@
     }
 
     .gear {
-      width: 40px;
-      height: 40px;
-      background: transparent;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      border: 4px solid currentColor;
       position: relative;
-      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: none;
     }
 
-    .gear::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 70%;
-      height: 70%;
-      background: currentColor;
+    .gear .center {
+      width: 60%;
+      height: 60%;
+      background-color: currentColor;
       border-radius: 50%;
-      transform: translate(-50%, -50%);
+      z-index: 2;
     }
+
+    .gear .tooth {
+      position: absolute;
+      width: 6px;
+      height: 12px;
+      background: currentColor;
+      top: -6px;
+      left: 50%;
+      transform-origin: bottom center;
+      z-index: 1;
+    }
+
+    /* Add 8 teeth at 45-degree increments */
+    .gear .tooth:nth-child(2) { transform: rotate(0deg) translateX(-50%); }
+    .gear .tooth:nth-child(3) { transform: rotate(45deg) translateX(-50%); }
+    .gear .tooth:nth-child(4) { transform: rotate(90deg) translateX(-50%); }
+    .gear .tooth:nth-child(5) { transform: rotate(135deg) translateX(-50%); }
+    .gear .tooth:nth-child(6) { transform: rotate(180deg) translateX(-50%); }
+    .gear .tooth:nth-child(7) { transform: rotate(225deg) translateX(-50%); }
+    .gear .tooth:nth-child(8) { transform: rotate(270deg) translateX(-50%); }
+    .gear .tooth:nth-child(9) { transform: rotate(315deg) translateX(-50%); }
 
     .rotate {
-      animation: spin 1s linear forwards;
+      animation: spin 0.8s linear;
     }
 
     @keyframes spin {
@@ -101,11 +119,31 @@
   <button id="themeToggle">ライトテーマに切り替え</button>
 
   <div id="gearsContainer">
-    <div class="gear" id="gear0"></div>
-    <div class="gear" id="gear1"></div>
-    <div class="gear" id="gear2"></div>
-    <div class="gear" id="gear3"></div>
-    <div class="gear" id="gear4"></div>
+    <div class="gear" id="gear0">
+      <div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div>
+      <div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div>
+      <div class="center"></div>
+    </div>
+    <div class="gear" id="gear1">
+      <div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div>
+      <div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div>
+      <div class="center"></div>
+    </div>
+    <div class="gear" id="gear2">
+      <div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div>
+      <div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div>
+      <div class="center"></div>
+    </div>
+    <div class="gear" id="gear3">
+      <div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div>
+      <div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div>
+      <div class="center"></div>
+    </div>
+    <div class="gear" id="gear4">
+      <div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div>
+      <div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div>
+      <div class="center"></div>
+    </div>
   </div>
 
   <script>
@@ -129,8 +167,7 @@
         if (digit !== previousDigits[index]) {
           const gear = document.getElementById("gear" + index);
           gear.classList.remove("rotate");
-          // 強制再描画
-          void gear.offsetWidth;
+          void gear.offsetWidth; // 強制再描画
           gear.classList.add("rotate");
           previousDigits[index] = digit;
         }
